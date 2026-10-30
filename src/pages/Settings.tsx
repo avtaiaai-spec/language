@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Download,
   Upload,
@@ -14,6 +14,14 @@ import { parseBackup, STORAGE_KEY } from '../lib/storage';
 import { cloud, cloudConfigError } from '../lib/cloud';
 import { contexts, levels } from '../data/curriculum';
 import { AudioButton, Badge, Button, Card, Input, Modal, PageTitle } from '../components/ui';
+import {
+  APP_RELEASE,
+  APP_BUILD,
+  subscribeUpdates,
+  getUpdateState,
+  checkForUpdates,
+  applyUpdate,
+} from '../lib/updates';
 import type { AppState, LevelId } from '../types';
 function download(text: string, name: string) {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
@@ -24,6 +32,7 @@ function download(text: string, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 export function Settings() {
+  const appUpdate = useSyncExternalStore(subscribeUpdates, getUpdateState);
   const {
     state,
     update,
@@ -436,6 +445,26 @@ export function Settings() {
             )}
           </Card>
           <Card>
+            <h2>Обновление приложения</h2>
+            <p>
+              Версия {APP_RELEASE} · сборка {APP_BUILD.slice(0, 7)}
+            </p>
+            <p className="muted">
+              Полный алфавит A–Z и атлас 44 звуков доступны в разделе «Обучение».
+            </p>
+            <Button
+              variant="secondary"
+              disabled={appUpdate.checking || appUpdate.applying}
+              onClick={() => void checkForUpdates()}
+            >
+              {appUpdate.checking ? 'Проверяем…' : 'Проверить обновление'}
+            </Button>
+            {appUpdate.available && (
+              <Button disabled={appUpdate.applying} onClick={() => void applyUpdate()}>
+                Обновить приложение
+              </Button>
+            )}
+            {appUpdate.message && <p role="status">{appUpdate.message}</p>}
             <h2>
               <MonitorSmartphone size={23} /> Студия на iPhone
             </h2>

@@ -2,7 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+const buildId = process.env.APP_BUILD_ID || process.env.GITHUB_SHA || 'local';
 export default defineConfig({
+  define: { __APP_BUILD_ID__: JSON.stringify(buildId) },
   base: process.env.VITE_BASE_PATH || '/',
   build: {
     rollupOptions: {
@@ -16,6 +18,16 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: 'studio-version',
+      generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'version.json',
+          source: JSON.stringify({ buildId, release: '1.1.1' }),
+        });
+      },
+    },
     react(),
     tailwindcss(),
     VitePWA({

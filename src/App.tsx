@@ -13,10 +13,12 @@ import { Listening, ListeningDetail } from './pages/Listening';
 import { Insights } from './pages/Insights';
 import { Settings } from './pages/Settings';
 import { Empty } from './components/ui';
+import { UpdateBanner } from './components/UpdateBanner';
 export function App() {
   const { state } = useStore();
   return (
     <HashRouter>
+      <UpdateBanner />
       <a
         className="skip-link"
         href="#main-content"
