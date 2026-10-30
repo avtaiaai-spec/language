@@ -13,7 +13,7 @@ import {
 import { lessons } from '../data/curriculum';
 import { listeningMaterials } from '../data/listening';
 import { useStore } from '../lib/store';
-import { checkAnswer, newReview, sessionScore } from '../lib/learning';
+import { checkAnswer, answerPunctuationNote, newReview, sessionScore } from '../lib/learning';
 import { createSession, finishSession } from '../lib/sessions';
 import { AudioButton, Badge, Button, Card, Empty, Modal, Progress } from '../components/ui';
 import type { ExerciseAttempt } from '../types';
@@ -306,6 +306,11 @@ export function Practice() {
                   </p>
                 )}
                 <p>{ex.explanation}</p>
+                {feedback.correct && answerPunctuationNote(feedback.answer, ex.answers) && (
+                  <p className="punctuation-note">
+                    {answerPunctuationNote(feedback.answer, ex.answers)}
+                  </p>
+                )}
                 {ex.type !== 'en-ru' && <AudioButton text={ex.answers[0]} />}
               </div>
             )}

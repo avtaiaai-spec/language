@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { AppState } from '../types';
 import { initialWords } from '../data/curriculum';
-import { newReview } from './learning';
+import { newReview, repairPunctuationGrades } from './learning';
 const level = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
 const context = z.enum(['business', 'movies', 'travel', 'books', 'everyday']);
 const finite = z.number().finite();
@@ -168,7 +168,7 @@ export function parseBackup(text: string): AppState {
   if (text.length > 10_000_000) throw new Error('Файл слишком большой (максимум 10 МБ).');
   const result = stateSchema.safeParse(JSON.parse(text));
   if (!result.success) throw new Error('Структура резервной копии не подходит для English Studio.');
-  return result.data as AppState;
+  return repairPunctuationGrades(result.data as AppState);
 }
 export function loadState(): { state: AppState; error?: string } {
   try {

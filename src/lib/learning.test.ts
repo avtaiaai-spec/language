@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
   checkAnswer,
+  answerPunctuationNote,
+  repairPunctuationGrades,
   normalizeAnswer,
   scheduleReview,
   newReview,
@@ -19,6 +21,60 @@ describe('answer checker', () => {
     expect(checkAnswer("I'm at home", ['I am at home.'])).toBe(true);
     expect(checkAnswer('ЧАЙ!', ['чай'])).toBe(true);
     expect(checkAnswer('She works', ['She works.'])).toBe(true);
+  });
+  it('accepts the reported answer with a standalone dash and gives a punctuation note', () => {
+    const expected = ['B is the first letter in business.'];
+    for (const dash of ['-', '–', '—', '−', '--'])
+      expect(checkAnswer(`B ${dash} is the first letter in business`, expected)).toBe(true);
+    expect(answerPunctuationNote('B - is the first letter in business', expected)).toContain(
+      'Ответ засчитан',
+    );
+    expect(answerPunctuationNote(expected[0], expected)).toBe('');
+    expect(checkAnswer('B - are the first letter in business', expected)).toBe(false);
+    expect(checkAnswer('B is not the first letter in business', expected)).toBe(false);
+    expect(checkAnswer('parttime', ['part-time'])).toBe(false);
+    expect(checkAnswer('5', ['-5'])).toBe(false);
+    expect(checkAnswer('- 5', ['5'])).toBe(false);
+    expect(checkAnswer('5 - 3', ['5 3'])).toBe(false);
+  });
+  it('repairs old false negatives and their saved lesson score exactly once', () => {
+    const state = freshState();
+    const a = {
+      id: 'old',
+      sessionId: 'session',
+      exerciseId: 'alphabet-business-translation',
+      lessonId: 'alphabet',
+      context: 'business' as const,
+      prompt: 'Переведите',
+      answer: 'B - is the first letter in business',
+      expected: 'B is the first letter in business.',
+      correct: false,
+      hints: 0,
+      at: 1,
+      skill: 'Writing' as const,
+    };
+    state.attempts = [a];
+    state.sessions = [
+      {
+        id: 'session',
+        lessonId: 'alphabet',
+        at: 2,
+        seconds: 30,
+        total: 1,
+        correct: 0,
+        hintCount: 0,
+        kind: 'lesson',
+      },
+    ];
+    state.progress.alphabet = { lessonId: 'alphabet', completedAt: 2, bestScore: 0, runs: 1 };
+    const fixed = repairPunctuationGrades(state);
+    expect(fixed.attempts[0].correct).toBe(true);
+    expect(fixed.sessions[0].correct).toBe(1);
+    expect(fixed.progress.alphabet.bestScore).toBe(100);
+    expect(state.attempts[0].correct).toBe(false);
+    expect(repairPunctuationGrades(fixed)).toBe(fixed);
+    state.attempts = [{ ...a, answer: 'B are the first letter in business' }];
+    expect(repairPunctuationGrades(state)).toBe(state);
   });
   it('accepts explicit translation alternatives and rejects errors', () => {
     expect(checkAnswer('любить', ['нравиться', 'любить'])).toBe(true);

@@ -41,19 +41,38 @@ test('onboarding, contextual lesson, every exercise, reload, result and vocabula
         used.add(index);
         await page.locator('.token-pool button').nth(index).click();
       }
-    } else await page.getByRole('textbox', { name: 'Ваш ответ' }).fill(ex.answers[0]);
+    } else
+      await page
+        .getByRole('textbox', { name: 'Ваш ответ' })
+        .fill(ex.type === 'translation' ? ex.answers[0].replace(' ', ' - ') : ex.answers[0]);
     if (i === 2) {
       await page.reload();
       await expect(page.getByRole('textbox', { name: 'Ваш ответ' })).toHaveValue(ex.answers[0]);
     }
     await page.getByRole('button', { name: 'Проверить', exact: true }).click();
     await expect(page.getByText('Верно. Отличная работа!')).toBeVisible();
+    if (ex.type === 'translation')
+      await expect(
+        page.getByText(
+          'Ответ засчитан. В образце отдельного тире нет — обратите внимание на пунктуацию.',
+        ),
+      ).toBeVisible();
     await page
       .getByRole('button', { name: i === 7 ? 'Завершить' : 'Следующее', exact: true })
       .click();
   }
   await expect(page.getByRole('heading', { name: 'Ещё один шаг вперёд.' })).toBeVisible();
   await expect(page.locator('.result-score>strong')).toHaveText('100%');
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('english-studio:v1')!);
+    const attempt = state.attempts.find((a: { exerciseId: string }) =>
+      a.exerciseId.endsWith('-translation'),
+    );
+    attempt.correct = false;
+    state.sessions[0].correct--;
+    state.progress['to-be'].bestScore = 88;
+    localStorage.setItem('english-studio:v1', JSON.stringify(state));
+  });
   await page.reload();
   await expect(page.locator('.result-score>strong')).toHaveText('100%');
   await page.getByRole('button', { name: 'Добавить новые слова' }).click();

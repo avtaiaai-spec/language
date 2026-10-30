@@ -14,12 +14,60 @@ export function normalizeAnswer(value: string) {
     .replace(/\b(he|she|it|that|there)'s\b/g, '$1 is')
     .replace(/\b(you|we|they)'re\b/g, '$1 are')
     .replace(/\b(i|you|we|they)'ve\b/g, '$1 have')
+    .replace(/(^|\s)(?:--?|[–—−])(?=\s|$)(?!\s*\d)/gu, '$1')
     .replace(/[.,!?;:"“”«»]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
 export function checkAnswer(answer: string, accepted: string[]) {
   return !!answer.trim() && accepted.some((a) => normalizeAnswer(a) === normalizeAnswer(answer));
+}
+export function answerPunctuationNote(answer: string, accepted: string[]) {
+  const separator = /(^|\s)(?:--?|[–—−])(?=\s|$)/u;
+  return checkAnswer(answer, accepted) &&
+    separator.test(answer) &&
+    !accepted.some((a) => separator.test(a))
+    ? 'Ответ засчитан. В образце отдельного тире нет — обратите внимание на пунктуацию.'
+    : '';
+}
+// Repair only false negatives caused by standalone dash separators, retaining actual errors.
+export function repairPunctuationGrades(state: AppState): AppState {
+  const fixed = new Map(
+    state.attempts
+      .filter((a) => !a.correct && answerPunctuationNote(a.answer, [a.expected]))
+      .map((a) => [a.id, { ...a, correct: true }]),
+  );
+  if (!fixed.size) return state;
+  const attempts = state.attempts.map((a) => fixed.get(a.id) || a);
+  const sessionIds = new Set([...fixed.values()].map((a) => a.sessionId));
+  const sessions = state.sessions.map((s) =>
+    sessionIds.has(s.id)
+      ? { ...s, correct: attempts.filter((a) => a.sessionId === s.id && a.correct).length }
+      : s,
+  );
+  const progress = { ...state.progress };
+  for (const session of sessions.filter((s) => sessionIds.has(s.id) && s.kind === 'lesson')) {
+    const p = progress[session.lessonId];
+    if (p)
+      progress[session.lessonId] = {
+        ...p,
+        bestScore: Math.max(
+          ...sessions
+            .filter((s) => s.kind === 'lesson' && s.lessonId === session.lessonId)
+            .map(sessionScore),
+        ),
+      };
+  }
+  const active = state.active
+    ? {
+        ...state.active,
+        attempts: state.active.attempts.map((a) => fixed.get(a.id) || a),
+        feedback: state.active.feedback
+          ? fixed.get(state.active.feedback.id) || state.active.feedback
+          : undefined,
+      }
+    : null;
+  return { ...state, attempts, sessions, progress, active, updatedAt: Date.now() };
 }
 // SM-2 adaptation: 0=again, 1=hard, 2=good, 3=easy. Hard repeats tomorrow.
 export function scheduleReview(old: WordReview, quality: number, now = Date.now()): WordReview {
