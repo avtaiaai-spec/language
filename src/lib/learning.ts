@@ -84,11 +84,18 @@ export function weekActivity(sessions: StudySession[], now = Date.now()) {
     };
   });
 }
-export function placementLevel(correct: boolean[]) {
-  const n = correct.reduce((a, b) => a + Number(b), 0);
-  return (['A1', 'A1', 'A2', 'A2', 'B1', 'B1', 'B2', 'B2', 'C1', 'C1', 'C2', 'C2', 'C2'] as const)[
-    Math.min(n, 12)
-  ];
+// Conservative starting-route recommendation, not a calibrated CEFR assessment.
+// Questions 1–2: A1; 3–4: A2; 5–6: B1; 7–8: B2.
+// Advanced vocabulary/grammar answers cannot compensate for missing foundations.
+export function placementLevel(correct: boolean[]): 'A1' | 'A2' | 'B1' | 'B2' {
+  if (correct.length !== 12) return 'A1';
+  const count = (start: number, end: number) => correct.slice(start, end).filter(Boolean).length;
+  const total = count(0, 12);
+  const foundation = count(0, 4);
+  if (foundation < 3 || count(0, 2) < 1 || total < 4) return 'A1';
+  if (count(4, 6) !== 2 || total < 7) return 'A2';
+  if (count(0, 6) < 5 || count(6, 8) !== 2 || total < 10) return 'B1';
+  return 'B2';
 }
 export interface AdvancedAnswerService {
   evaluate(exercise: Exercise, answer: string): Promise<{ correct: boolean; explanation: string }>;

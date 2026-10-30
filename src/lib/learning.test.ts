@@ -158,9 +158,31 @@ describe('persistence, progress and statistics', () => {
     expect(weekActivity([], 1000)).toHaveLength(7);
     expect(weekActivity([], 1000).every((d) => d.seconds === 0)).toBe(true);
   });
-  it('computes different placement results', () => {
-    expect(placementLevel(Array(12).fill(false))).toBe('A1');
-    expect(placementLevel(Array(6).fill(true))).toBe('B2');
-    expect(placementLevel(Array(12).fill(true))).toBe('C2');
+  it('recommends a conservative route with confirmed foundations', () => {
+    const first = (n: number) => Array.from({ length: 12 }, (_, i) => i < n);
+    expect(placementLevel(first(0))).toBe('A1');
+    expect(placementLevel(first(3))).toBe('A1');
+    expect(placementLevel(first(4))).toBe('A2');
+    expect(placementLevel(first(6))).toBe('A2');
+    expect(placementLevel(first(7))).toBe('B1');
+    expect(placementLevel(first(9))).toBe('B1');
+    expect(placementLevel(first(10))).toBe('B2');
+    expect(placementLevel(first(12))).toBe('B2');
+    expect(placementLevel(Array(6).fill(true))).toBe('A1');
+  });
+  it('never recommends B1 for any combination of four correct answers', () => {
+    for (let mask = 0; mask < 4096; mask++) {
+      const answers = Array.from({ length: 12 }, (_, i) => !!(mask & (1 << i)));
+      if (answers.filter(Boolean).length === 4)
+        expect(['A1', 'A2']).toContain(placementLevel(answers));
+    }
+  });
+  it('does not let advanced guesses compensate for gaps in basic grammar', () => {
+    expect(
+      placementLevel([false, false, false, false, true, true, true, true, true, true, true, true]),
+    ).toBe('A1');
+    expect(
+      placementLevel([true, true, true, true, false, false, true, true, true, true, true, true]),
+    ).toBe('A2');
   });
 });

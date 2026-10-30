@@ -98,12 +98,30 @@ test('placement test calculates result and catalog labels planned courses', asyn
   await page.getByRole('button', { name: 'Начать свой путь' }).click();
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.getByRole('button', { name: 'Определить уровень', exact: false }).click();
+  const responses = [
+    'am',
+    'drinks',
+    'are watching',
+    'went',
+    'be',
+    'stayed',
+    'will',
+    'has finished',
+    'I have seen',
+    'is',
+    'confusing',
+    'supports it',
+  ];
   for (let i = 0; i < 12; i++) {
-    await page.locator('.placement .choice').first().click();
+    await page
+      .locator('.placement')
+      .getByRole('button', { name: responses[i], exact: true })
+      .click();
     await page.getByRole('button', { name: 'Следующий вопрос' }).click();
   }
-  await expect(page.getByText('ОРИЕНТИРОВОЧНЫЙ РЕЗУЛЬТАТ')).toBeVisible();
-  await expect(page.locator('.large-number')).not.toHaveText('C2');
+  await expect(page.getByText('РЕКОМЕНДУЕМЫЙ СТАРТ')).toBeVisible();
+  await expect(page.locator('.large-number')).toHaveText('A2');
+  await expect(page.getByText('4 из 12 ответов верны.')).toBeVisible();
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
