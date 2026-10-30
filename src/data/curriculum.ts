@@ -1,3 +1,6 @@
+import { contextStories } from './contextStories';
+import { enrichPhonicsLesson } from './phonics';
+import { enrichLessonGuide } from './lessonGuides';
 import type { ContextId, Lesson, Level, Module, LevelId, LessonContext } from '../types';
 export const contexts: { id: ContextId; title: string; en: string; mark: string }[] = [
   { id: 'business', title: 'Бизнес', en: 'Business', mark: '01' },
@@ -1068,7 +1071,7 @@ function makePack(seed: Seed, p: Pack, index: number): LessonContext {
     ],
   };
 }
-export const lessons: Lesson[] = seeds.map((seed) => ({
+const baseLessons: Lesson[] = seeds.map((seed) => ({
   ...seed,
   minutes: 12,
   sections: [
@@ -1164,11 +1167,18 @@ const extras: Record<string, [string, string][]> = {
     ['They have just arrived.', 'Они только что приехали.'],
   ],
 };
-for (const l of lessons)
+for (const l of baseLessons)
   l.contexts.forEach((p, i) => {
     const [en, ru] = extras[l.id][i];
     p.examples[1] = { en, ru };
   });
+for (const lesson of baseLessons) {
+  const stories = contextStories[lesson.id];
+  if (stories)
+    for (const pack of lesson.contexts)
+      pack.examples.push(...stories[pack.id].map(([en, ru]) => ({ en, ru })));
+}
+export const lessons: Lesson[] = baseLessons.map(enrichPhonicsLesson).map(enrichLessonGuide);
 export const initialWords = lessons
   .slice(0, 9)
   .map((l) => l.contexts[4].words[0])

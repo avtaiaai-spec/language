@@ -81,7 +81,12 @@ export interface Lesson {
   minutes: number;
   rule: string;
   formula: string;
-  sections: { title: string; text: string }[];
+  sections: {
+    title: string;
+    text: string;
+    fact?: string;
+    checkpoint?: { question: string; answer: string };
+  }[];
   mistake: string;
   contexts: LessonContext[];
 }

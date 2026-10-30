@@ -187,7 +187,10 @@ test('offline app shell, backup round trip, search and narrow layout', async ({
   await page.getByRole('link', { name: 'Present Simple A1 · Урок', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Present Simple', exact: true })).toBeVisible();
   if (await page.locator('.lesson-toc').isVisible()) {
-    await page.locator('.lesson-toc').getByRole('link', { name: '03 Примеры' }).click();
+    await page
+      .locator('.lesson-toc')
+      .getByRole('link', { name: /Примеры/ })
+      .click();
     await expect(page).toHaveURL(/#\/lesson\/present-simple$/);
   }
   await page.goto('/#/settings');
@@ -223,4 +226,122 @@ test('offline app shell, backup round trip, search and narrow layout', async ({
       route,
     ).toBe(true);
   }
+});
+
+test('full alphabet and 44 sounds switch themes, speak names, save words and train a sound group', async ({
+  page,
+}, info) => {
+  await page.addInitScript(() => {
+    const records: string[] = [];
+    (window as unknown as { __spoken: string[] }).__spoken = records;
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      value: {
+        getVoices: () => [],
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        cancel: () => {},
+        speak: (u: SpeechSynthesisUtterance) => {
+          records.push(u.text);
+          u.onstart?.(new Event('start') as SpeechSynthesisEvent);
+          setTimeout(() => u.onend?.(new Event('end') as SpeechSynthesisEvent), 0);
+        },
+      },
+    });
+  });
+  await onboard(page);
+  await page.goto('/#/lesson/alphabet?context=business');
+  await expect(page.locator('.alphabet-letter')).toHaveCount(26);
+  const a = page.locator('.alphabet-letter').first();
+  await expect(a.getByText('account', { exact: true })).toBeVisible();
+  await a.getByRole('button', { name: 'Название буквы A', exact: true }).click();
+  await a.getByRole('button', { name: 'Слушать слово account', exact: true }).click();
+  expect(await page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken)).toEqual(
+    ['The letter A.', 'account'],
+  );
+  await page.getByRole('button', { name: 'Путешествия', exact: true }).click();
+  await expect(a.getByText('airport', { exact: true })).toBeVisible();
+  await a.getByRole('button', { name: 'В словарь: airport', exact: true }).click();
+  await expect(a.getByRole('button', { name: 'В вашем словаре', exact: true })).toBeDisabled();
+  await page.goto('/#/lesson/reading?context=travel');
+  await expect(page.locator('.sound-card')).toHaveCount(44);
+  const shortI = page.locator('.sound-card[data-sound="ɪ"]');
+  await expect(shortI.getByText('ticket', { exact: true })).toBeVisible();
+  await shortI.getByRole('button', { name: 'В словарь: ticket', exact: true }).click();
+  await page.getByRole('button', { name: 'Кино и сериалы', exact: true }).click();
+  await expect(shortI.getByText('film', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Путешествия', exact: true }).click();
+  await page.getByRole('button', { name: 'Короткие гласные', exact: true }).click();
+  await expect(page.locator('.sound-card')).toHaveCount(7);
+  await page.getByLabel('Поиск звука или слова').fill('ticket');
+  await expect(page.locator('.sound-card')).toHaveCount(1);
+  await page.getByLabel('Поиск звука или слова').fill('');
+  await shortI.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `test-results/sound-atlas-${info.project.name}.png` });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('button', { name: 'Практика выбранных звуков · 7' }).click();
+  for (let i = 0; i < 7; i++) {
+    const active = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('english-studio:v1')!).active,
+    );
+    const ex = active.exercises[i];
+    if (ex.type === 'choice')
+      await page.locator('.exercise-options button').filter({ hasText: ex.answers[0] }).click();
+    else await page.getByRole('textbox', { name: 'Ваш ответ' }).fill(ex.answers[0]);
+    await page.getByRole('button', { name: 'Проверить', exact: true }).click();
+    await expect(page.getByText('Верно. Отличная работа!')).toBeVisible();
+    await page
+      .getByRole('button', { name: i === 6 ? 'Завершить' : 'Следующее', exact: true })
+      .click();
+  }
+  await expect(page.locator('.result-score>strong')).toHaveText('100%');
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('english-studio:v1')!).progress.reading,
+    ),
+  ).toBeUndefined();
+  await page.goto('/#/vocabulary?q=ticket');
+  await expect(page.getByRole('heading', { name: 'ticket', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'ticket', exact: true })).toBeVisible();
+});
+
+test('updated alphabet practice covers all 26 letters and persists a complete result', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.goto('/#/lesson/alphabet?context=movies');
+  await page.getByRole('button', { name: 'К упражнениям', exact: true }).click();
+  for (let i = 0; i < 26; i++) {
+    const active = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('english-studio:v1')!).active,
+    );
+    expect(active.exercises.length).toBe(26);
+    const ex = active.exercises[i];
+    if (ex.type === 'choice')
+      await page.locator('.exercise-options button').filter({ hasText: ex.answers[0] }).click();
+    else if (ex.type === 'order') {
+      for (const token of ex.answers[0].split(' ')) {
+        const index = ex.tokens.indexOf(token);
+        await page.locator('.token-pool button').nth(index).click();
+      }
+    } else await page.getByRole('textbox', { name: 'Ваш ответ' }).fill(ex.answers[0]);
+    if (i === 5) {
+      await page.reload();
+      await expect(page.getByRole('textbox', { name: 'Ваш ответ' })).toHaveValue(ex.answers[0]);
+    }
+    await page.getByRole('button', { name: 'Проверить', exact: true }).click();
+    await expect(page.getByText('Верно. Отличная работа!')).toBeVisible();
+    await page
+      .getByRole('button', { name: i === 25 ? 'Завершить' : 'Следующее', exact: true })
+      .click();
+  }
+  await expect(page.locator('.result-score>strong')).toHaveText('100%');
+  await page.reload();
+  await expect(page.locator('.result-score>strong')).toHaveText('100%');
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('english-studio:v1')!).progress.alphabet.bestScore,
+    ),
+  ).toBe(100);
 });

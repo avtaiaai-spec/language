@@ -96,7 +96,7 @@ export function Catalog() {
                         {l.minutes} мин<span>·</span>
                         {state.progress[l.id]
                           ? `Лучший результат ${state.progress[l.id].bestScore}%`
-                          : '5 контекстов · 8 упражнений'}
+                          : `${l.contexts.length} контекстов · ${l.contexts[0].exercises.length} заданий`}
                       </div>
                     </Link>
                   ))}

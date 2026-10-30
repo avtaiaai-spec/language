@@ -4076,3 +4076,437 @@ details p {
 .audio[aria-busy='true'] {
   opacity: 0.65;
 }
+/* Reading foundations: a full alphabet and a contextual sound atlas. */
+.phonics-studio {
+  margin: 38px 0 50px;
+  scroll-margin-top: 20px;
+}
+.theory .phonics-studio > p {
+  font-size: 13px;
+}
+.phonics-jump {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.phonics-jump a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--primary);
+}
+.phonics-jump > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.alphabet-grid,
+.sound-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.alphabet-letter,
+.sound-card {
+  padding: 23px;
+  min-width: 0;
+}
+.letter-glyph {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 49px;
+  line-height: 1;
+  color: var(--secondary);
+  letter-spacing: -2px;
+}
+.letter-glyph > span {
+  font-size: 39px;
+  color: var(--text);
+  margin-left: 9px;
+}
+.alphabet-letter > .row .badge {
+  font-size: 8px;
+}
+.letter-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 18px 0;
+}
+.letter-name > .ipa {
+  font-size: 16px;
+  color: var(--primary);
+}
+.letter-name > .audio {
+  font-size: 10px;
+  padding-inline: 8px;
+}
+.phonics-word {
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
+  margin-top: 15px;
+}
+.phonics-word strong {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 25px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.phonics-word > .ipa {
+  font-size: 14px;
+  color: var(--secondary);
+  display: block;
+  line-height: 1.7;
+}
+.theory .phonics-word > p {
+  font-size: 12px;
+  margin: 8px 0 3px;
+  line-height: 1.7;
+}
+.phonics-word > .btn {
+  padding: 8px 0;
+  font-size: 10px;
+  min-height: 40px;
+  text-align: left;
+}
+.phonics-word mark {
+  background: #858af525;
+  color: var(--text);
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+.alphabet-letter details > p {
+  font-size: 12px;
+  line-height: 1.9;
+  margin-top: 14px;
+}
+.alphabet-letter details {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.alphabet-letter summary {
+  font-size: 10px;
+}
+.phonics-tip {
+  margin-top: 22px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--hero);
+}
+.phonics-tip > svg {
+  color: var(--gold);
+  margin-top: 4px;
+}
+.phonics-tip h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.theory .phonics-tip p {
+  font-size: 12px;
+}
+.phonics-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.phonics-tools .search-field {
+  min-width: 180px;
+}
+.phonics-tools > .btn {
+  font-size: 10px;
+}
+.sound-group {
+  margin: 30px 0;
+}
+.sound-group .section-heading {
+  align-items: flex-start;
+}
+.sound-group .section-heading h3 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 25px;
+}
+.theory .sound-group .section-heading p {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.sound-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 70px;
+}
+.sound-symbol {
+  font-size: 34px;
+  line-height: 1.6;
+  color: var(--secondary);
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+.sound-card-heading h3 {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.theory .sound-card .articulation {
+  font-size: 12px;
+  line-height: 1.9;
+  margin: 14px 0;
+}
+.theory .sound-card .spelling {
+  font-size: 11px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 7px;
+  line-height: 1.8;
+}
+.spelling > span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 1.3px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.guide-section > p:not(.chapter-number) {
+  margin: 14px 0;
+}
+.theory .chapter-number {
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  margin-bottom: 11px;
+}
+.guide-section {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.lesson-fact {
+  padding: 20px 23px;
+  background: var(--surface);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 8px 8px 0;
+  margin-top: 25px;
+}
+.lesson-fact > span {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+.theory .lesson-fact > p {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 17px;
+  line-height: 1.8;
+  margin: 10px 0 0;
+  color: var(--text);
+}
+.self-check {
+  padding: 18px 20px;
+  background: #858af508;
+  border: 1px solid #858af522;
+  border-radius: 8px;
+}
+.self-check summary {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.theory .self-check p {
+  font-size: 13px;
+  margin-top: 15px;
+}
+.reading-lab {
+  scroll-margin-top: 20px;
+  margin: 40px 0;
+}
+.reading-lab > h2 {
+  margin-top: 12px;
+}
+.sound-comparisons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 25px 0;
+}
+.sound-comparison {
+  padding: 20px;
+}
+.sound-comparison > .row {
+  margin-top: 15px;
+}
+.sound-comparison strong {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+.sound-comparison .ipa {
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
+}
+.reading-method {
+  background: var(--hero);
+}
+.reading-method h3 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 25px;
+}
+.theory .reading-method p {
+  font-size: 13px;
+  margin: 14px 0;
+}
+.reading-analysis {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+.theory #words > .lesson-word {
+  margin: 13px 0;
+}
+.lesson-toc {
+  max-height: calc(100dvh - 60px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.lesson-toc > a {
+  line-height: 1.8;
+}
+.lesson-toc > a > span {
+  font-size: 10px;
+}
+@media (max-width: 1100px) {
+  .alphabet-grid,
+  .sound-grid {
+    gap: 12px;
+  }
+  .alphabet-letter,
+  .sound-card {
+    padding: 19px;
+  }
+  .letter-name {
+    flex-wrap: wrap;
+  }
+  .letter-name > .audio {
+    padding-left: 0;
+  }
+  .phonics-tools > .btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .phonics-tools > .search-field {
+    max-width: none;
+    width: 100%;
+  }
+}
+@media (max-width: 540px) {
+  .alphabet-grid,
+  .sound-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .alphabet-letter,
+  .sound-card {
+    padding: 24px;
+  }
+  .letter-glyph {
+    font-size: 56px;
+  }
+  .letter-glyph > span {
+    font-size: 44px;
+  }
+  .letter-name {
+    flex-wrap: nowrap;
+  }
+  .letter-name > .audio {
+    font-size: 11px;
+  }
+  .phonics-word strong {
+    font-size: 29px;
+  }
+  .phonics-word > .ipa {
+    font-size: 16px;
+  }
+  .theory .phonics-word > p {
+    font-size: 13px;
+  }
+  .phonics-word > .btn {
+    font-size: 12px;
+    min-height: 44px;
+  }
+  .alphabet-letter summary {
+    font-size: 12px;
+  }
+  .alphabet-letter details > p {
+    font-size: 13px;
+  }
+  .sound-symbol {
+    font-size: 39px;
+  }
+  .sound-card-heading h3 {
+    font-size: 14px;
+  }
+  .theory .sound-card .articulation {
+    font-size: 13px;
+  }
+  .theory .sound-card .spelling {
+    font-size: 12px;
+  }
+  .phonics-tools > .btn {
+    font-size: 11px;
+  }
+  .sound-comparisons {
+    grid-template-columns: 1fr;
+  }
+  .phonics-studio .section-heading h2 {
+    font-size: 27px;
+  }
+  .phonics-studio .section-heading {
+    flex-wrap: wrap;
+  }
+  .lesson-fact {
+    padding: 20px;
+  }
+  .theory .lesson-fact > p {
+    font-size: 18px;
+  }
+  .self-check {
+    padding: 18px;
+  }
+  .self-check summary {
+    font-size: 13px;
+  }
+  .phonics-jump a {
+    font-size: 12px;
+  }
+  .phonics-jump > span {
+    font-size: 10px;
+  }
+  .phonics-tip {
+    padding: 21px;
+  }
+  .theory .phonics-tip p {
+    font-size: 12px;
+  }
+}
+.inline-word {
+  display: inline;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--primary);
+  border-radius: 2px;
+}
+.inline-word:hover {
+  color: var(--primary);
+}

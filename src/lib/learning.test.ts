@@ -111,7 +111,7 @@ describe('review scheduling', () => {
   });
 });
 describe('curriculum integrity', () => {
-  it('provides twelve lessons, five context packs each, and eight real types', () => {
+  it('provides complete contextual lessons and subject-appropriate exercises', () => {
     expect(lessons).toHaveLength(12);
     const ids = new Set<string>();
     for (const lesson of lessons) {
@@ -119,7 +119,9 @@ describe('curriculum integrity', () => {
       expect(lesson.contexts.map((c) => c.id)).toEqual(contexts.map((c) => c.id));
       for (const pack of lesson.contexts) {
         expect(pack.exercises.length).toBeGreaterThanOrEqual(6);
-        expect(new Set(pack.exercises.map((e) => e.type)).size).toBe(8);
+        expect(new Set(pack.exercises.map((e) => e.type)).size).toBe(
+          lesson.id === 'alphabet' ? 4 : lesson.id === 'reading' ? 2 : 8,
+        );
         expect(pack.examples[0].en).not.toBe(pack.examples[1].en);
         for (const ex of pack.exercises) {
           expect(ids.has(ex.id)).toBe(false);

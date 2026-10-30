@@ -21,7 +21,7 @@ const typeLabels = {
   'en-ru': 'Перевод слова',
   'ru-en': 'Обратный перевод',
   translation: 'Перевод предложения',
-  order: 'Соберите предложение',
+  order: 'Соберите по порядку',
   blank: 'Вставьте пропуск',
   choice: 'Выбор ответа',
   dictation: 'Диктант',
@@ -39,7 +39,10 @@ export function Practice() {
     const context = state.settings.contexts[0];
     const pool = lessons.filter((l) => l.level === state.profile.level);
     const source = pool.length ? pool : lessons.filter((l) => l.level === 'A1');
-    let exercises = source.flatMap((l) => l.contexts.find((p) => p.id === context)!.exercises);
+    const packs = source.map((l) => l.contexts.find((p) => p.id === context)!.exercises);
+    let exercises = Array.from({ length: Math.max(...packs.map((p) => p.length)) }, (_, i) =>
+      packs.flatMap((p) => (p[i] ? [p[i]] : [])),
+    ).flat();
     if (mode === 'grammar') exercises = exercises.filter((e) => e.skill === 'Grammar');
     if (mode === 'translation')
       exercises = exercises.filter((e) => e.type === 'translation' || e.type === 'ru-en');
